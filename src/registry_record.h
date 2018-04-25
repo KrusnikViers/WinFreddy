@@ -6,7 +6,7 @@
 
 class RegistryRecord {
 public:
-    RegistryRecord(const char* key_name, const char* value_name);
+    RegistryRecord(std::string key_name, std::string value_name);
     ~RegistryRecord();
 
     // Returns true on success.

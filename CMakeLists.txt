@@ -12,6 +12,8 @@ set(SOURCES
     src/main.cpp
     src/tray_icon.cpp
     src/tray_icon.h
+    src/constants.cpp
+    src/constants.h
     src/registry_record.cpp
     src/registry_record.h
     src/message_window.cpp

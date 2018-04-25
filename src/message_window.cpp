@@ -2,9 +2,11 @@
 
 #include <stdexcept>
 
+#include "constants.h"
+
 namespace {
 
-const char* kWindowClassName = "WinFreddieMessageWindow";
+const char* kWindowClassName = "WinFreddie_MessageWindow";
 
 MessageWindow* g_instance = nullptr;
 
@@ -45,5 +47,14 @@ MessageWindow::~MessageWindow() {
 
 LRESULT MessageWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param,
                                   LPARAM l_param) {
+  switch (msg) {
+    case kIconMessageID: {
+      switch (l_param) {
+        case WM_LBUTTONUP:
+        case WM_RBUTTONUP:
+          tray_icon_ptr_->SwitchState();
+      }
+    }
+  }
   return DefWindowProc(hwnd, msg, w_param, l_param);
 }

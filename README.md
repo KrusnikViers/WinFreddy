@@ -4,4 +4,4 @@
 Windows application to prevent system from sleeping
 
 ---
-Tray icons made by [Smashicons](https://smashicons.com) from www.flaticon.com
+Tray icons made by [Freepik](http://www.freepik.com) and [Pixel perfect](https://icon54.com/) from www.flaticon.com

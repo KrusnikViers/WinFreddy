@@ -1,7 +1,7 @@
 #include "registry_record.h"
 
-RegistryRecord::RegistryRecord(const char* key_name, const char* value_name)
-    : key_name_(key_name), value_name_(value_name) {
+RegistryRecord::RegistryRecord(std::string key_name, std::string value_name)
+    : key_name_(std::move(key_name)), value_name_(std::move(value_name)) {
   is_valid_ =
       (ERROR_SUCCESS == RegOpenKeyEx(HKEY_CURRENT_USER, key_name_.c_str(), 0,
                                      KEY_ALL_ACCESS, &handle_));

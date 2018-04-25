@@ -12,6 +12,7 @@ public:
     bool SwitchState();
 
 private:
+    void SetStateInternal(bool state);
     void UpdateIconData();
 
     bool is_awake_state_ = true;
