@@ -1,0 +1,11 @@
+version: '1.0.{build}'
+
+shallow_clone: true
+image: Visual Studio 2017
+
+before_build:
+  - ps: mkdir build ; cd build
+  - ps: cmake .. -G "Visual Studio 15 2017"
+
+build_script:
+  - ps: cmake --build . --config Release
