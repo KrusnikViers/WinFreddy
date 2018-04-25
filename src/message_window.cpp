@@ -1,5 +1,7 @@
 #include "message_window.h"
 
+#include <stdexcept>
+
 namespace {
 
 const char* kWindowClassName = "WinFreddieMessageWindow";

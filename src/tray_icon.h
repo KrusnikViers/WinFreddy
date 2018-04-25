@@ -18,4 +18,4 @@ private:
     NOTIFYICONDATA current_icon_data_;
     HICON awake_icon_;
     HICON rest_icon_;
-};
+};  // class TrayIcon

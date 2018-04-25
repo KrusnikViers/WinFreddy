@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-
 #include "windows.h"
 #include "winreg.h"
 
@@ -19,4 +18,4 @@ private:
     std::string value_name_;
     bool is_valid_ = false;
     HKEY handle_;
-};
+};  // class RegistryRecord

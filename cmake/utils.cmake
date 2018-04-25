@@ -9,6 +9,8 @@ macro (set_target_strict_compilation_params TARGET_NAME)
     # -W4: Enable all warnings.
     # -WX: Treat warnings as errors.
     target_compile_options(${TARGET_NAME} PRIVATE -W4 -WX)
+    # Disable warnings about Microsoft-specific alternative functions.
+    target_compile_definitions(${TARGET_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
   else()
     message(WARNING
             "Unknown compiler! Strict compilation not set for ${TARGET_NAME}.")
@@ -16,18 +18,16 @@ macro (set_target_strict_compilation_params TARGET_NAME)
 endmacro()
 
 # Creates C resources file from files in given directory
-function(make_embedded_resources resources_directory output_filename)
+macro (make_embedded_resources resources_directory output_filename)
   file(WRITE ${output_filename}.cpp
        "#include \"${output_filename}.h\"\n"
        "// This file is generated automatically. Do not edit!\n"
        "// Content is taken from ${resources_directory}\n\n")
-   file(WRITE ${output_filename}.h
-        "#pragma once\n"
-        "// This file is generated automatically. Do not edit!\n"
-        "// Content is taken from ${resources_directory}\n\n")
+  file(WRITE ${output_filename}.h
+       "#pragma once\n"
+       "// This file is generated automatically. Do not edit!\n"
+       "// Content is taken from ${resources_directory}\n\n")
   file(GLOB resource_files ${resources_directory}/*)
-  message(${resources_directory})
-  message(${output_filename})
   foreach(resource_file ${resource_files})
     # Read and convert filename to C identifier.
     string(REGEX MATCH "([^/]+)$" filename ${resource_file})
@@ -43,4 +43,4 @@ function(make_embedded_resources resources_directory output_filename)
          "extern unsigned char ${filename}[];\n"
          "extern unsigned ${filename}_size;\n\n")
   endforeach()
-endfunction()
+endmacro()

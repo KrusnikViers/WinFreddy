@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-
 #include "windows.h"
 
 #include "tray_icon.h"
@@ -18,4 +17,4 @@ class MessageWindow {
  private:
   HWND window_handle_ = nullptr;
   std::unique_ptr<TrayIcon> tray_icon_ptr_;
-};
+};  // class MessageWindow
