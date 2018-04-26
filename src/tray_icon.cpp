@@ -3,7 +3,6 @@
 #include "winreg.h"
 
 #include "constants.h"
-#include "gen/resources.h"
 #include "registry_record.h"
 
 namespace {
@@ -27,8 +26,8 @@ HICON GetIconFromBinary(const unsigned char* data, size_t size) {
 }  // namespace
 
 TrayIcon::TrayIcon(HWND message_window_handle) {
-  awake_icon_ = GetIconFromBinary(active_ico, active_ico_size);
-  rest_icon_ = GetIconFromBinary(rest_ico, rest_ico_size);
+  active_icon_ = LoadIcon(GetModuleHandle(nullptr), "active");
+  rest_icon_ = LoadIcon(GetModuleHandle(nullptr), "rest");
 
   current_icon_data_.cbSize = sizeof(current_icon_data_);
   current_icon_data_.hWnd = message_window_handle;
@@ -47,7 +46,7 @@ TrayIcon::TrayIcon(HWND message_window_handle) {
 
 TrayIcon::~TrayIcon() {
   Shell_NotifyIcon(NIM_DELETE, &current_icon_data_);
-  DestroyIcon(awake_icon_);
+  DestroyIcon(active_icon_);
   DestroyIcon(rest_icon_);
 }
 
@@ -69,5 +68,5 @@ bool TrayIcon::SwitchState() {
 void TrayIcon::UpdateIconData() {
   strcpy(current_icon_data_.szTip,
          is_awake_state_ ? kActiveTip.c_str() : kRestTip.c_str());
-  current_icon_data_.hIcon = is_awake_state_ ? awake_icon_ : rest_icon_;
+  current_icon_data_.hIcon = is_awake_state_ ? active_icon_ : rest_icon_;
 }

@@ -17,6 +17,6 @@ private:
 
     bool is_awake_state_ = true;
     NOTIFYICONDATA current_icon_data_;
-    HICON awake_icon_;
+    HICON active_icon_;
     HICON rest_icon_;
 };  // class TrayIcon
