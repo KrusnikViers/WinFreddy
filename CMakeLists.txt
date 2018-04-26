@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CXX_STANDARD_REQUIRED TRUE)
 
-make_embedded_resources(${CMAKE_CURRENT_SOURCE_DIR}/src/resources
-                        ${CMAKE_CURRENT_SOURCE_DIR}/src/gen/resources)
 set(SOURCES
     src/main.cpp
     src/tray_icon.cpp
@@ -18,8 +16,7 @@ set(SOURCES
     src/registry_record.h
     src/message_window.cpp
     src/message_window.h
-    src/gen/resources.h
-    src/gen/resources.cpp
+    src/resources/resources.rc
 )
 
 add_executable(WinFreddie ${SOURCES})

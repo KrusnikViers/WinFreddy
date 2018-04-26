@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+
 #include "windows.h"
 
 #include "tray_icon.h"
