@@ -5,30 +5,21 @@
 #include "constants.h"
 #include "registry_record.h"
 
-namespace {
-
-HICON GetIconFromBinary(const unsigned char* data, size_t size) {
-  HICON result = nullptr;
-  char path_buffer[MAX_PATH + 10] = {};
-  char filename_buffer[MAX_PATH + 10] = {};
-  if (GetTempPath(MAX_PATH + 10, path_buffer) &&
-      GetTempFileName(path_buffer, nullptr, 1, filename_buffer)) {
-    FILE* temporary_file = fopen(filename_buffer, "wb");
-    fwrite(data, size, 1, temporary_file);
-    fclose(temporary_file);
-    result = reinterpret_cast<HICON>(
-        LoadImage(nullptr, filename_buffer, IMAGE_ICON, 0, 0,
-                  LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED));
+class TrayIcon::ThreadLocker {
+ public:
+  ThreadLocker() {
+    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED);
   }
-  return result;
-}
 
-}  // namespace
+  ~ThreadLocker() { SetThreadExecutionState(ES_CONTINUOUS); }
+};  // class ThreadLocker
 
 TrayIcon::TrayIcon(HWND message_window_handle) {
+  if (RegistryRecord(kRegistryMainKey).GetIntValue(kRegistryDefaultState, 1))
+    thread_locker_.reset(new ThreadLocker());
+
   active_icon_ = LoadIcon(GetModuleHandle(nullptr), "active");
   rest_icon_ = LoadIcon(GetModuleHandle(nullptr), "rest");
-
   current_icon_data_.cbSize = sizeof(current_icon_data_);
   current_icon_data_.hWnd = message_window_handle;
   current_icon_data_.uID = 0;
@@ -36,10 +27,6 @@ TrayIcon::TrayIcon(HWND message_window_handle) {
   current_icon_data_.uVersion = NOTIFYICON_VERSION;
   current_icon_data_.uFlags = NIF_TIP | NIF_ICON | NIF_MESSAGE;
 
-  is_awake_state_ = RegistryRecord(kRegistryStorageKey, kRegistryStateValueName)
-                        .GetValue(true);
-  if (is_awake_state_)
-    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED);
   UpdateIconData();
   Shell_NotifyIcon(NIM_ADD, &current_icon_data_);
 }
@@ -51,22 +38,21 @@ TrayIcon::~TrayIcon() {
 }
 
 bool TrayIcon::SwitchState() {
-  is_awake_state_ = !is_awake_state_;
-  if (is_awake_state_)
-    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED);
-  else
-    SetThreadExecutionState(ES_CONTINUOUS);
-
-  RegistryRecord(kRegistryStorageKey, kRegistryStateValueName)
-      .SetValue(is_awake_state_);
+  if (thread_locker_) {
+    thread_locker_.reset();
+    RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, 0);
+  } else {
+    thread_locker_.reset(new ThreadLocker());
+    RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
+  }
 
   UpdateIconData();
   Shell_NotifyIcon(NIM_MODIFY, &current_icon_data_);
-  return is_awake_state_;
+  return !!thread_locker_;
 }
 
 void TrayIcon::UpdateIconData() {
   strcpy(current_icon_data_.szTip,
-         is_awake_state_ ? kActiveTip.c_str() : kRestTip.c_str());
-  current_icon_data_.hIcon = is_awake_state_ ? active_icon_ : rest_icon_;
+         thread_locker_ ? kActiveTip.c_str() : kRestTip.c_str());
+  current_icon_data_.hIcon = thread_locker_ ? active_icon_ : rest_icon_;
 }
