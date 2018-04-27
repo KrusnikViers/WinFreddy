@@ -1,7 +1,7 @@
-#include "message_window.h"
+#include "core_window.h"
 
 int main() {
-  MessageWindow window;
+  CoreWindow window;
 
   MSG message;
   while (BOOL result = GetMessage(&message, window.window_handle(), 0, 0)) {

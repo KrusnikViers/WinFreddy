@@ -7,19 +7,12 @@
 
 class TrayIcon {
  public:
-  TrayIcon(HWND message_window_handle);
+  TrayIcon(HWND message_window_handle, bool is_active);
   ~TrayIcon();
 
-  // Switches icon state, returns true if updated state is to stay awake.
-  bool SwitchState();
+  void SetActiveIcon(bool is_active);
 
  private:
-  class ThreadLocker;
-
-  void SetStateInternal(bool state);
-  void UpdateIconData();
-
-  std::unique_ptr<ThreadLocker> thread_locker_;
   NOTIFYICONDATA current_icon_data_;
   HICON active_icon_;
   HICON rest_icon_;

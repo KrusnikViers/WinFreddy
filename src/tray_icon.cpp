@@ -5,30 +5,18 @@
 #include "constants.h"
 #include "registry_record.h"
 
-class TrayIcon::ThreadLocker {
- public:
-  ThreadLocker() {
-    SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED);
-  }
-
-  ~ThreadLocker() { SetThreadExecutionState(ES_CONTINUOUS); }
-};  // class ThreadLocker
-
-TrayIcon::TrayIcon(HWND message_window_handle) {
-  if (RegistryRecord(kRegistryMainKey).GetIntValue(kRegistryDefaultState, 1))
-    thread_locker_.reset(new ThreadLocker());
-
-  active_icon_ = LoadIcon(GetModuleHandle(nullptr), "active");
-  rest_icon_ = LoadIcon(GetModuleHandle(nullptr), "rest");
+TrayIcon::TrayIcon(HWND message_window_handle, bool is_active) {
   current_icon_data_.cbSize = sizeof(current_icon_data_);
   current_icon_data_.hWnd = message_window_handle;
   current_icon_data_.uID = 0;
   current_icon_data_.uCallbackMessage = kIconMessageID;
   current_icon_data_.uVersion = NOTIFYICON_VERSION;
-  current_icon_data_.uFlags = NIF_TIP | NIF_ICON | NIF_MESSAGE;
-
-  UpdateIconData();
+  current_icon_data_.uFlags = NIF_MESSAGE;
   Shell_NotifyIcon(NIM_ADD, &current_icon_data_);
+
+  active_icon_ = LoadIcon(GetModuleHandle(nullptr), "active");
+  rest_icon_ = LoadIcon(GetModuleHandle(nullptr), "rest");
+  SetActiveIcon(is_active);
 }
 
 TrayIcon::~TrayIcon() {
@@ -37,22 +25,10 @@ TrayIcon::~TrayIcon() {
   DestroyIcon(rest_icon_);
 }
 
-bool TrayIcon::SwitchState() {
-  if (thread_locker_) {
-    thread_locker_.reset();
-    RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, 0);
-  } else {
-    thread_locker_.reset(new ThreadLocker());
-    RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
-  }
-
-  UpdateIconData();
-  Shell_NotifyIcon(NIM_MODIFY, &current_icon_data_);
-  return !!thread_locker_;
-}
-
-void TrayIcon::UpdateIconData() {
+void TrayIcon::SetActiveIcon(bool is_active) {
+  current_icon_data_.uFlags = current_icon_data_.uFlags | NIF_TIP | NIF_ICON;
   strcpy(current_icon_data_.szTip,
-         thread_locker_ ? kActiveTip.c_str() : kRestTip.c_str());
-  current_icon_data_.hIcon = thread_locker_ ? active_icon_ : rest_icon_;
+         is_active ? kActiveTip.c_str() : kRestTip.c_str());
+  current_icon_data_.hIcon = is_active ? active_icon_ : rest_icon_;
+  Shell_NotifyIcon(NIM_MODIFY, &current_icon_data_);
 }
