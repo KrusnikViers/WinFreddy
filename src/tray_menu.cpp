@@ -20,6 +20,7 @@ TrayMenu::TrayMenu(HWND window_handle) : window_handle_(window_handle) {
   AppendMenu(handle_, 0u, (UINT_PTR)kAboutItemID, kMenuAboutText.c_str());
   AppendMenu(handle_, MF_SEPARATOR, (UINT_PTR)0, nullptr);
   AppendMenu(handle_, 0u, (UINT_PTR)kExitItemID, kMenuExitText.c_str());
+  SetMenuDefaultItem(handle_, kAutolaunchItemID, 0);
 }
 
 TrayMenu::~TrayMenu() {
