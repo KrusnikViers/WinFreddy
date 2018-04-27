@@ -7,6 +7,7 @@
 namespace {
 
 const char* kWindowClassName = "WinFreddie_CoreWindow";
+const std::string kModuleFileName = GetModuleFilename();
 
 CoreWindow* g_instance = nullptr;
 
@@ -39,7 +40,8 @@ CoreWindow::CoreWindow() {
 
   if (RegistryRecord(kRegistryMainKey).GetIntValue(kRegistryDefaultState, 1))
     thread_locker_.reset(new ScopedThreadLocker());
-  tray_icon_.reset(new TrayIcon(window_handle_, !!thread_locker_));
+  tray_icon_.reset(
+      new TrayIcon(window_handle_, !!thread_locker_));
 }
 
 CoreWindow::~CoreWindow() {
@@ -51,18 +53,59 @@ CoreWindow::~CoreWindow() {
 
 LRESULT
 CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
-  if (msg == kIconMessageID && l_param == WM_LBUTTONUP) OnTrayIconLeftClick();
-  return DefWindowProc(hwnd, msg, w_param, l_param);
-}
+  if (msg == kIconMessageID) {
+    switch (l_param) {
+      // Left click on tray icon.
+      case WM_LBUTTONUP:
+        if (thread_locker_) {
+          thread_locker_.reset();
+          tray_icon_->SetActiveIcon(false);
+          RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, 0);
+        } else {
+          thread_locker_.reset(new ScopedThreadLocker());
+          tray_icon_->SetActiveIcon(true);
+          RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
+        }
+        break;
 
-void CoreWindow::OnTrayIconLeftClick() {
-  if (thread_locker_) {
-    thread_locker_.reset();
-    tray_icon_->SetActiveIcon(false);
-    RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, 0);
-  } else {
-    thread_locker_.reset(new ScopedThreadLocker());
-    tray_icon_->SetActiveIcon(true);
-    RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
+      // Right click on tray icon.
+      case WM_RBUTTONUP: {
+        POINT cursor_position = {};
+        GetCursorPos(&cursor_position);
+        tray_icon_->ShowMenu(cursor_position.x, cursor_position.y);
+        break;
+      }
+
+      default: break;
+    }
+  } else if (msg == WM_COMMAND && !HIWORD(w_param) && !l_param) {
+    switch (LOWORD(w_param)) {
+      // Autolaunch line clicked in context menu.
+      case kAutolaunchItemID: {
+        RegistryRecord autolaunch_record(kRegistryAutolaunchKey);
+        if (autolaunch_record.GetStringValue(kRegistryAppPath) ==
+            kModuleFileName) {
+          autolaunch_record.RemoveValue(kRegistryAppPath);
+        } else {
+          autolaunch_record.SetValue(kRegistryAppPath, kModuleFileName);
+        }
+        break;
+      }
+
+      // About line clicked in context menu.
+      case kAboutItemID:
+        ShellExecute(nullptr, nullptr,
+                     "https://github.com/KrusnikViers/WinFreddie", 0, 0,
+                     SW_SHOWNORMAL);
+        break;
+
+      // Exit line clicked in context menu.
+      case kExitItemID:
+        PostQuitMessage(0);
+        break;
+
+      default: break;
+    };
   }
+  return DefWindowProc(hwnd, msg, w_param, l_param);
 }

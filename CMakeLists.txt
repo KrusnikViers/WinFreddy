@@ -18,6 +18,8 @@ set(SOURCES
     src/scoped_thread_locker.h
     src/tray_icon.cpp
     src/tray_icon.h
+    src/tray_menu.cpp
+    src/tray_menu.h
     src/utils.h
 )
 add_executable(WinFreddie ${SOURCES})

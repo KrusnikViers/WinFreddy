@@ -5,7 +5,8 @@
 #include "constants.h"
 #include "registry_record.h"
 
-TrayIcon::TrayIcon(HWND message_window_handle, bool is_active) {
+TrayIcon::TrayIcon(HWND message_window_handle, bool is_active)
+    : menu_(message_window_handle) {
   current_icon_data_.cbSize = sizeof(current_icon_data_);
   current_icon_data_.hWnd = message_window_handle;
   current_icon_data_.uID = 0;
@@ -31,4 +32,8 @@ void TrayIcon::SetActiveIcon(bool is_active) {
          is_active ? kActiveTip.c_str() : kRestTip.c_str());
   current_icon_data_.hIcon = is_active ? active_icon_ : rest_icon_;
   Shell_NotifyIcon(NIM_MODIFY, &current_icon_data_);
+}
+
+void TrayIcon::ShowMenu(int x, int y) {
+  menu_.ShowMenu(x, y);
 }

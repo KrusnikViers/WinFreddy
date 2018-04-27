@@ -17,8 +17,6 @@ class CoreWindow {
   LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param);
 
  private:
-  void OnTrayIconLeftClick();
-
   HWND window_handle_ = nullptr;
 
   std::unique_ptr<ScopedThreadLocker> thread_locker_;
