@@ -3,7 +3,6 @@
 #include <string>
 
 #include "windows.h"
-#include "winreg.h"
 
 class RegistryRecord {
  public:
@@ -11,11 +10,11 @@ class RegistryRecord {
   ~RegistryRecord();
 
   // Returns true on success.
-  bool SetValue(const std::string& value_name, int value);
+  bool SetValue(const std::string& value_name, bool value);
   bool SetValue(const std::string& value_name, const std::string& value);
   bool RemoveValue(const std::string& value_name);
 
-  int GetIntValue(const std::string& value_name, int default_value = 0);
+  bool GetBoolValue(const std::string& value_name, bool default_value = true);
   std::string GetStringValue(const std::string& value_name,
                              std::string default_value = std::string());
 

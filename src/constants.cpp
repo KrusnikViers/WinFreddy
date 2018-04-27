@@ -1,5 +1,17 @@
 #include "constants.h"
 
+#include "utils.h"
+
+namespace {
+
+std::string GetModuleFilename() {
+  char buffer[MAX_PATH + 10];
+  CHECK(GetModuleFileName(nullptr, buffer, MAX_PATH + 10));
+  return std::string("\"") + std::string(buffer) + std::string("\"");
+}
+
+}  // namespace
+
 const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddie)";
 const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddie)";
 
@@ -13,3 +25,5 @@ const std::string kRegistryAutolaunchKey =
     "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 const std::string kRegistryDefaultState = "DefaultState";
 const std::string kRegistryAppPath = "WinFreddie";
+
+const std::string kModuleFileName = GetModuleFilename();

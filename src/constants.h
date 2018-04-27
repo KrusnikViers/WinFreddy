@@ -17,6 +17,8 @@ extern const std::string kRegistryAutolaunchKey;
 extern const std::string kRegistryDefaultState;
 extern const std::string kRegistryAppPath;
 
+extern const std::string kModuleFileName;
+
 enum class MenuID : UINT {
   Autolaunch = 1u,
   RemainActive,

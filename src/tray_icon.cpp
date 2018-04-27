@@ -1,9 +1,6 @@
 #include "tray_icon.h"
 
-#include "winreg.h"
-
 #include "constants.h"
-#include "registry_record.h"
 
 TrayIcon::TrayIcon(HWND message_window_handle) : menu_(message_window_handle) {
   current_icon_data_.cbSize = sizeof(current_icon_data_);
@@ -34,4 +31,4 @@ void TrayIcon::SetActiveState(bool is_active) {
   menu_.SetActiveState(is_active);
 }
 
-void TrayIcon::ShowMenu(int x, int y) { menu_.ShowMenu(x, y); }
+void TrayIcon::ShowMenu() { menu_.ShowMenu(); }

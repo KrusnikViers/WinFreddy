@@ -7,8 +7,8 @@ class TrayMenu {
   explicit TrayMenu(HWND window_handle);
   ~TrayMenu();
 
-  void ShowMenu(int x, int y);
   void SetActiveState(bool is_active);
+  void ShowMenu();
 
  private:
   bool is_active_ = true;

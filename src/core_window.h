@@ -18,6 +18,7 @@ class CoreWindow {
 
  private:
   void SwitchState();
+  void SwitchAutolaunch();
 
   HWND window_handle_ = nullptr;
 

@@ -14,12 +14,13 @@ RegistryRecord::~RegistryRecord() {
   if (is_valid_) RegCloseKey(handle_);
 }
 
-bool RegistryRecord::SetValue(const std::string& value_name, int value) {
+bool RegistryRecord::SetValue(const std::string& value_name, bool value) {
+  DWORD dword_value = value ? 1 : 0;
   return is_valid_ &&
-         ERROR_SUCCESS == RegSetValueEx(handle_, value_name.c_str(), 0,
-                                        REG_DWORD,
-                                        reinterpret_cast<const BYTE*>(&value),
-                                        sizeof(value));
+         ERROR_SUCCESS ==
+             RegSetValueEx(handle_, value_name.c_str(), 0, REG_DWORD,
+                           reinterpret_cast<const BYTE*>(&dword_value),
+                           sizeof(dword_value));
 }
 
 bool RegistryRecord::SetValue(const std::string& value_name,
@@ -36,15 +37,15 @@ bool RegistryRecord::RemoveValue(const std::string& value_name) {
          ERROR_SUCCESS == RegDeleteValue(handle_, value_name.c_str());
 }
 
-int RegistryRecord::GetIntValue(const std::string& value_name,
-                                int default_value) {
-  DWORD value_buffer = default_value;
+bool RegistryRecord::GetBoolValue(const std::string& value_name,
+                                  bool default_value) {
+  DWORD value_buffer = default_value ? 1 : 0;
   DWORD value_buffer_size = sizeof(value_buffer);
   if (is_valid_ &&
       ERROR_SUCCESS == RegGetValue(handle_, nullptr, value_name.c_str(),
                                    RRF_RT_DWORD, nullptr, &value_buffer,
                                    &value_buffer_size)) {
-    return value_buffer;
+    return !!value_buffer;
   }
   return default_value;
 }
