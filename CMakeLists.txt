@@ -25,10 +25,11 @@ set(SOURCES
 add_executable(WinFreddie WIN32 ${SOURCES})
 
 target_include_directories(WinFreddie PUBLIC src)
-set_target_properties(WinFreddie PROPERTIES LINK_FLAGS "-static")
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(WinFreddie PRIVATE -Wall -Wextra -Werror )
+    set_target_properties(WinFreddie PROPERTIES LINK_FLAGS "-mwindows -static")
 elseif(MSVC)
     target_compile_options(WinFreddie PRIVATE -W4 -WX)
     target_compile_definitions(WinFreddie PRIVATE _CRT_SECURE_NO_WARNINGS)
+    set_target_properties(WinFreddie PROPERTIES LINK_FLAGS "/subsystem:windows /entry:mainCRTStartup")
 endif()

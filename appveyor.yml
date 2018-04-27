@@ -9,3 +9,19 @@ before_build:
 
 build_script:
   - ps: cmake --build . --config Release
+
+artifacts:
+  - path: build\Release\WinFreddie.exe
+    name: WinFreddie
+
+deploy:
+  release: WinFreddie-v$(appveyor_build_version)
+  description: 'Portable version'
+  provider: GitHub
+  auth_token:
+    secure: FDRmppSa+8auET1jOPu6Yevbt84DHbwDSWeF0gQu7wdoRh/fUac5FVw2n2xWg702
+  draft: true
+  prerelease: false
+  on:
+    branch: master
+    appveyor_repo_tag: true
