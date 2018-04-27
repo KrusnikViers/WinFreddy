@@ -11,8 +11,8 @@ const std::string kModuleFileName = GetModuleFilename();
 
 CoreWindow* g_instance = nullptr;
 
-LRESULT CALLBACK
-InternalWindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+LRESULT CALLBACK InternalWindowProc(HWND hwnd, UINT msg, WPARAM w_param,
+                                    LPARAM l_param) {
   CHECK(g_instance);
   return g_instance->WindowProc(hwnd, msg, w_param, l_param);
 }
@@ -30,8 +30,7 @@ CoreWindow::CoreWindow() {
   window_class.lpszClassName = kWindowClassName;
   ATOM class_handle = RegisterClassEx(&window_class);
   CHECK(class_handle);
-  if (!class_handle)
-    throw std::logic_error(__FUNCTION__);
+  if (!class_handle) throw std::logic_error(__FUNCTION__);
 
   window_handle_ = CreateWindowEx(
       0, reinterpret_cast<LPCSTR>(MAKELONG(class_handle, 0)), nullptr, 0, 0, 0,
@@ -40,8 +39,7 @@ CoreWindow::CoreWindow() {
 
   if (RegistryRecord(kRegistryMainKey).GetIntValue(kRegistryDefaultState, 1))
     thread_locker_.reset(new ScopedThreadLocker());
-  tray_icon_.reset(
-      new TrayIcon(window_handle_, !!thread_locker_));
+  tray_icon_.reset(new TrayIcon(window_handle_, !!thread_locker_));
 }
 
 CoreWindow::~CoreWindow() {
@@ -76,7 +74,8 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
         break;
       }
 
-      default: break;
+      default:
+        break;
     }
   } else if (msg == WM_COMMAND && !HIWORD(w_param) && !l_param) {
     switch (LOWORD(w_param)) {
@@ -104,7 +103,8 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
         PostQuitMessage(0);
         break;
 
-      default: break;
+      default:
+        break;
     };
   }
   return DefWindowProc(hwnd, msg, w_param, l_param);

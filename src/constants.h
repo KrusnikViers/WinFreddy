@@ -4,8 +4,8 @@
 
 #include "windows.h"
 
-extern const std::string kActiveTip;
-extern const std::string kRestTip;
+extern const std::string kActiveStateTrayIconTip;
+extern const std::string kRestStateTrayIconTip;
 
 extern const std::string kMenuAutolaunchText;
 extern const std::string kMenuAboutText;

@@ -1,7 +1,7 @@
 #include "constants.h"
 
-const std::string kActiveTip = "Stay awake! (WinFreddie)";
-const std::string kRestTip = "Computer may sleep. (WinFreddie)";
+const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddie)";
+const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddie)";
 
 const std::string kMenuAutolaunchText = "Launch on system start";
 const std::string kMenuAboutText = "Go to the project page";

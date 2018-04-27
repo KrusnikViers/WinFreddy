@@ -28,12 +28,10 @@ TrayIcon::~TrayIcon() {
 
 void TrayIcon::SetActiveIcon(bool is_active) {
   current_icon_data_.uFlags = current_icon_data_.uFlags | NIF_TIP | NIF_ICON;
-  strcpy(current_icon_data_.szTip,
-         is_active ? kActiveTip.c_str() : kRestTip.c_str());
+  strcpy(current_icon_data_.szTip, is_active ? kActiveStateTrayIconTip.c_str()
+                                             : kRestStateTrayIconTip.c_str());
   current_icon_data_.hIcon = is_active ? active_icon_ : rest_icon_;
   Shell_NotifyIcon(NIM_MODIFY, &current_icon_data_);
 }
 
-void TrayIcon::ShowMenu(int x, int y) {
-  menu_.ShowMenu(x, y);
-}
+void TrayIcon::ShowMenu(int x, int y) { menu_.ShowMenu(x, y); }

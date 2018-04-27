@@ -24,8 +24,7 @@ TrayMenu::TrayMenu(HWND window_handle) : window_handle_(window_handle) {
 }
 
 TrayMenu::~TrayMenu() {
-  if (handle_)
-    DestroyMenu(handle_);
+  if (handle_) DestroyMenu(handle_);
 }
 
 void TrayMenu::ShowMenu(int x, int y) {
