@@ -11,8 +11,7 @@ RegistryRecord::RegistryRecord(std::string key_name) {
 }
 
 RegistryRecord::~RegistryRecord() {
-  if (is_valid_)
-    RegCloseKey(handle_);
+  if (is_valid_) RegCloseKey(handle_);
 }
 
 bool RegistryRecord::SetValue(const std::string& value_name, int value) {

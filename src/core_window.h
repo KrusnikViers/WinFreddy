@@ -17,8 +17,10 @@ class CoreWindow {
   LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param);
 
  private:
+  void SwitchState();
+
   HWND window_handle_ = nullptr;
 
+  TrayIcon tray_icon_;
   std::unique_ptr<ScopedThreadLocker> thread_locker_;
-  std::unique_ptr<TrayIcon> tray_icon_;
 };  // class CoreWindow

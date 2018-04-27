@@ -13,16 +13,11 @@ CoreWindow* g_instance = nullptr;
 
 LRESULT CALLBACK InternalWindowProc(HWND hwnd, UINT msg, WPARAM w_param,
                                     LPARAM l_param) {
-  CHECK(g_instance);
-  return g_instance->WindowProc(hwnd, msg, w_param, l_param);
+  if (g_instance) return g_instance->WindowProc(hwnd, msg, w_param, l_param);
+  return DefWindowProc(hwnd, msg, w_param, l_param);
 }
 
-}  // namespace
-
-CoreWindow::CoreWindow() {
-  CHECK(!g_instance);
-  g_instance = this;
-
+HWND CreateCoreWindow() {
   WNDCLASSEX window_class = {};
   window_class.cbSize = sizeof(window_class);
   window_class.lpfnWndProc = InternalWindowProc;
@@ -30,21 +25,28 @@ CoreWindow::CoreWindow() {
   window_class.lpszClassName = kWindowClassName;
   ATOM class_handle = RegisterClassEx(&window_class);
   CHECK(class_handle);
-  if (!class_handle) throw std::logic_error(__FUNCTION__);
 
-  window_handle_ = CreateWindowEx(
+  HWND handle = CreateWindowEx(
       0, reinterpret_cast<LPCSTR>(MAKELONG(class_handle, 0)), nullptr, 0, 0, 0,
       0, 0, HWND_MESSAGE, nullptr, nullptr, nullptr);
-  CHECK(window_handle_);
+  CHECK(handle);
+  return handle;
+}
+
+}  // namespace
+
+CoreWindow::CoreWindow()
+    : window_handle_(CreateCoreWindow()), tray_icon_(window_handle_) {
+  CHECK(!g_instance);
+  g_instance = this;
 
   if (RegistryRecord(kRegistryMainKey).GetIntValue(kRegistryDefaultState, 1))
     thread_locker_.reset(new ScopedThreadLocker());
-  tray_icon_.reset(new TrayIcon(window_handle_, !!thread_locker_));
+  tray_icon_.SetActiveState(!!thread_locker_);
 }
 
 CoreWindow::~CoreWindow() {
   thread_locker_.reset();
-  tray_icon_.reset();
   CloseWindow(window_handle_);
   g_instance = nullptr;
 }
@@ -55,22 +57,15 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     switch (l_param) {
       // Left click on tray icon.
       case WM_LBUTTONUP:
-        if (thread_locker_) {
-          thread_locker_.reset();
-          tray_icon_->SetActiveIcon(false);
-          RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, 0);
-        } else {
-          thread_locker_.reset(new ScopedThreadLocker());
-          tray_icon_->SetActiveIcon(true);
-          RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
-        }
+        SwitchState();
         break;
 
       // Right click on tray icon.
       case WM_RBUTTONUP: {
         POINT cursor_position = {};
         GetCursorPos(&cursor_position);
-        tray_icon_->ShowMenu(cursor_position.x, cursor_position.y);
+        SetForegroundWindow(window_handle_);
+        tray_icon_.ShowMenu(cursor_position.x, cursor_position.y);
         break;
       }
 
@@ -80,7 +75,7 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
   } else if (msg == WM_COMMAND && !HIWORD(w_param) && !l_param) {
     switch (LOWORD(w_param)) {
       // Autolaunch line clicked in context menu.
-      case kAutolaunchItemID: {
+      case (UINT)MenuID::Autolaunch: {
         RegistryRecord autolaunch_record(kRegistryAutolaunchKey);
         if (autolaunch_record.GetStringValue(kRegistryAppPath) ==
             kModuleFileName) {
@@ -91,15 +86,20 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
         break;
       }
 
+      // Remain active line clicked in context menu
+      case (UINT)MenuID::RemainActive:
+        SwitchState();
+        break;
+
       // About line clicked in context menu.
-      case kAboutItemID:
+      case (UINT)MenuID::About:
         ShellExecute(nullptr, nullptr,
                      "https://github.com/KrusnikViers/WinFreddie", 0, 0,
                      SW_SHOWNORMAL);
         break;
 
       // Exit line clicked in context menu.
-      case kExitItemID:
+      case (UINT)MenuID::Exit:
         PostQuitMessage(0);
         break;
 
@@ -108,4 +108,16 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     };
   }
   return DefWindowProc(hwnd, msg, w_param, l_param);
+}
+
+void CoreWindow::SwitchState() {
+  if (thread_locker_) {
+    thread_locker_.reset();
+    tray_icon_.SetActiveState(false);
+    RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, 0);
+  } else {
+    thread_locker_.reset(new ScopedThreadLocker());
+    tray_icon_.SetActiveState(true);
+    RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
+  }
 }

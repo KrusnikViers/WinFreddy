@@ -4,6 +4,7 @@ const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddie)";
 const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddie)";
 
 const std::string kMenuAutolaunchText = "Launch on system start";
+const std::string kMenuRemainActiveText = "Computer will stay awake";
 const std::string kMenuAboutText = "Go to the project page";
 const std::string kMenuExitText = "Exit";
 

@@ -9,10 +9,10 @@
 
 class TrayIcon {
  public:
-  TrayIcon(HWND message_window_handle, bool is_active);
+  TrayIcon(HWND message_window_handle);
   ~TrayIcon();
 
-  void SetActiveIcon(bool is_active);
+  void SetActiveState(bool is_active);
   void ShowMenu(int x, int y);
 
  private:

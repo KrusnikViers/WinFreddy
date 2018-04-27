@@ -5,8 +5,7 @@
 #include "constants.h"
 #include "registry_record.h"
 
-TrayIcon::TrayIcon(HWND message_window_handle, bool is_active)
-    : menu_(message_window_handle) {
+TrayIcon::TrayIcon(HWND message_window_handle) : menu_(message_window_handle) {
   current_icon_data_.cbSize = sizeof(current_icon_data_);
   current_icon_data_.hWnd = message_window_handle;
   current_icon_data_.uID = 0;
@@ -17,7 +16,6 @@ TrayIcon::TrayIcon(HWND message_window_handle, bool is_active)
 
   active_icon_ = LoadIcon(GetModuleHandle(nullptr), "active");
   rest_icon_ = LoadIcon(GetModuleHandle(nullptr), "rest");
-  SetActiveIcon(is_active);
 }
 
 TrayIcon::~TrayIcon() {
@@ -26,12 +24,14 @@ TrayIcon::~TrayIcon() {
   DestroyIcon(rest_icon_);
 }
 
-void TrayIcon::SetActiveIcon(bool is_active) {
+void TrayIcon::SetActiveState(bool is_active) {
   current_icon_data_.uFlags = current_icon_data_.uFlags | NIF_TIP | NIF_ICON;
   strcpy(current_icon_data_.szTip, is_active ? kActiveStateTrayIconTip.c_str()
                                              : kRestStateTrayIconTip.c_str());
   current_icon_data_.hIcon = is_active ? active_icon_ : rest_icon_;
   Shell_NotifyIcon(NIM_MODIFY, &current_icon_data_);
+
+  menu_.SetActiveState(is_active);
 }
 
 void TrayIcon::ShowMenu(int x, int y) { menu_.ShowMenu(x, y); }
