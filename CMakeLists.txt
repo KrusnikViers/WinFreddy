@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project(WinFreddie)
+project(WinFreddy)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -22,14 +22,14 @@ set(SOURCES
     src/tray_menu.h
     src/utils.h
 )
-add_executable(WinFreddie WIN32 ${SOURCES})
+add_executable(WinFreddy WIN32 ${SOURCES})
 
-target_include_directories(WinFreddie PUBLIC src)
+target_include_directories(WinFreddy PUBLIC src)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(WinFreddie PRIVATE -Wall -Wextra -Werror )
-    set_target_properties(WinFreddie PROPERTIES LINK_FLAGS "-mwindows -static")
+    target_compile_options(WinFreddy PRIVATE -Wall -Wextra -Werror )
+    set_target_properties(WinFreddy PROPERTIES LINK_FLAGS "-mwindows -static")
 elseif(MSVC)
-    target_compile_options(WinFreddie PRIVATE -W4 -WX)
-    target_compile_definitions(WinFreddie PRIVATE _CRT_SECURE_NO_WARNINGS)
-    set_target_properties(WinFreddie PROPERTIES LINK_FLAGS "/subsystem:windows /entry:mainCRTStartup")
+    target_compile_options(WinFreddy PRIVATE -W4 -WX)
+    target_compile_definitions(WinFreddy PRIVATE _CRT_SECURE_NO_WARNINGS)
+    set_target_properties(WinFreddy PROPERTIES LINK_FLAGS "/subsystem:windows /entry:mainCRTStartup")
 endif()

@@ -11,11 +11,11 @@ build_script:
   - ps: cmake --build . --config Release
 
 artifacts:
-  - path: build\Release\WinFreddie.exe
-    name: WinFreddie
+  - path: build\Release\WinFreddy.exe
+    name: WinFreddy
 
 deploy:
-  release: WinFreddie-v$(appveyor_build_version)
+  release: WinFreddy v$(appveyor_build_version)
   description: 'Portable version'
   provider: GitHub
   auth_token:

@@ -12,18 +12,18 @@ std::string GetModuleFilename() {
 
 }  // namespace
 
-const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddie)";
-const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddie)";
+const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddy)";
+const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddy)";
 
 const std::string kMenuAutolaunchText = "Launch on system start";
 const std::string kMenuRemainActiveText = "Computer will stay awake";
 const std::string kMenuAboutText = "Go to the project page";
 const std::string kMenuExitText = "Exit";
 
-const std::string kRegistryMainKey = "Software\\KrusnikViers\\WinFreddie";
+const std::string kRegistryMainKey = "Software\\KrusnikViers\\WinFreddy";
 const std::string kRegistryAutolaunchKey =
     "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 const std::string kRegistryDefaultState = "DefaultState";
-const std::string kRegistryAppPath = "WinFreddie";
+const std::string kRegistryAppPath = "WinFreddy";
 
 const std::string kModuleFileName = GetModuleFilename();

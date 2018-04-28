@@ -16,7 +16,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 HWND CreateCoreWindow() {
   WNDCLASS window_class = {};
   window_class.lpfnWndProc = WndProc;
-  window_class.lpszClassName = "WinFreddieCoreWindow";
+  window_class.lpszClassName = "WinFreddyCoreWindow";
   ATOM class_handle = RegisterClass(&window_class);
   CHECK(class_handle);
 
@@ -78,7 +78,7 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
       // About line clicked in context menu.
       case MenuID::About:
         ShellExecute(nullptr, nullptr,
-                     "https://github.com/KrusnikViers/WinFreddie", 0, 0,
+                     "https://github.com/KrusnikViers/WinFreddy", 0, 0,
                      SW_SHOWNORMAL);
         break;
 
