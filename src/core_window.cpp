@@ -90,6 +90,9 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
       default:
         break;
     };
+  } else if (msg == WM_POWERBROADCAST) {
+    if (thread_locker_)
+      thread_locker_.reset(new ScopedThreadLocker());
   }
   return DefWindowProc(hwnd, msg, w_param, l_param);
 }
