@@ -4,7 +4,6 @@
 
 #include "windows.h"
 
-#include "scoped_thread_locker.h"
 #include "tray_icon.h"
 
 class CoreWindow {
