@@ -12,8 +12,8 @@ std::string GetModuleFilename() {
 
 }  // namespace
 
-const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddy)";
-const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddy)";
+const std::string kActiveStateTrayIconTip = "Stay awake! (WinFreddy v1.1)";
+const std::string kRestStateTrayIconTip = "Computer may sleep. (WinFreddy v1.1)";
 
 const std::string kMenuAutolaunchText = "Launch on system start";
 const std::string kMenuRemainActiveText = "Computer will stay awake";

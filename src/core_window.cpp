@@ -8,21 +8,25 @@ namespace {
 
 CoreWindow* g_instance = nullptr;
 
+// Just some number to identify WM_TIMER messages for awake timer.
+const UINT kSystemTimerId = 50u;
+const UINT kSystemTimerPeriodMs = 10'000;
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
   return g_instance ? g_instance->WindowProc(hwnd, msg, w_param, l_param)
-                    : DefWindowProc(hwnd, msg, w_param, l_param);
+                    : ::DefWindowProc(hwnd, msg, w_param, l_param);
 }
 
 HWND CreateCoreWindow() {
   WNDCLASS window_class = {};
   window_class.lpfnWndProc = WndProc;
   window_class.lpszClassName = "WinFreddyCoreWindow";
-  ATOM class_handle = RegisterClass(&window_class);
+  ATOM class_handle = ::RegisterClass(&window_class);
   CHECK(class_handle);
 
   HWND handle =
-      CreateWindow(reinterpret_cast<LPCSTR>(MAKELONG(class_handle, 0)), nullptr,
-                   0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, nullptr, nullptr);
+      ::CreateWindow(reinterpret_cast<LPCSTR>(MAKELONG(class_handle, 0)), nullptr,
+                     0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, nullptr, nullptr);
   CHECK(handle);
   return handle;
 }
@@ -36,13 +40,14 @@ CoreWindow::CoreWindow()
 
   if (RegistryRecord(kRegistryMainKey)
           .GetBoolValue(kRegistryDefaultState, true)) {
-    thread_locker_.reset(new ScopedThreadLocker());
+    CHECK(!awake_lock_enabled_);
+    SwitchState();
   }
-  tray_icon_.SetActiveState(!!thread_locker_);
+  tray_icon_.SetActiveState(awake_lock_enabled_);
 }
 
 CoreWindow::~CoreWindow() {
-  CloseWindow(window_handle_);
+  ::CloseWindow(window_handle_);
   g_instance = nullptr;
 }
 
@@ -63,6 +68,11 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
       default:
         break;
     }
+  } else if (msg == WM_TIMER) {
+    // This should be checked, since ::KillTimer do not remove messages that
+    // were already posted in the window queue.
+    if (awake_lock_enabled_)
+      ::SetThreadExecutionState(ES_DISPLAY_REQUIRED);
   } else if (msg == WM_COMMAND && !HIWORD(w_param) && !l_param) {
     switch ((MenuID)LOWORD(w_param)) {
       // Autolaunch line clicked in context menu.
@@ -77,36 +87,34 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
       // About line clicked in context menu.
       case MenuID::About:
-        ShellExecute(nullptr, nullptr,
-                     "https://github.com/KrusnikViers/WinFreddy", 0, 0,
-                     SW_SHOWNORMAL);
+        ::ShellExecute(nullptr, nullptr,
+                       "https://github.com/KrusnikViers/WinFreddy", 0, 0,
+                       SW_SHOWNORMAL);
         break;
 
       // Exit line clicked in context menu.
       case MenuID::Exit:
-        PostQuitMessage(0);
+        ::PostQuitMessage(0);
         break;
 
       default:
         break;
     };
-  } else if (msg == WM_POWERBROADCAST) {
-    if (thread_locker_)
-      thread_locker_.reset(new ScopedThreadLocker());
   }
   return DefWindowProc(hwnd, msg, w_param, l_param);
 }
 
 void CoreWindow::SwitchState() {
-  if (thread_locker_) {
-    thread_locker_.reset();
-    tray_icon_.SetActiveState(false);
+  if (awake_lock_enabled_) {
+    awake_lock_enabled_ = false;
+    CHECK(::KillTimer(window_handle_, kSystemTimerId));
     RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, false);
   } else {
-    thread_locker_.reset(new ScopedThreadLocker());
-    tray_icon_.SetActiveState(true);
+    awake_lock_enabled_ = true;
+    CHECK(::SetTimer(window_handle_, kSystemTimerId, kSystemTimerPeriodMs, NULL));
     RegistryRecord(kRegistryMainKey).RemoveValue(kRegistryDefaultState);
   }
+  tray_icon_.SetActiveState(awake_lock_enabled_);
 }
 
 void CoreWindow::SwitchAutolaunch() {

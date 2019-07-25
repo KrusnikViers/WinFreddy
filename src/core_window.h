@@ -23,5 +23,5 @@ class CoreWindow {
   HWND window_handle_ = nullptr;
 
   TrayIcon tray_icon_;
-  std::unique_ptr<ScopedThreadLocker> thread_locker_;
+  bool awake_lock_enabled_ = false;
 };  // class CoreWindow

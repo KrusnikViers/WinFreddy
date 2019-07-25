@@ -14,8 +14,6 @@ set(SOURCES
     src/registry_record.cpp
     src/registry_record.h
     src/resources/resources.rc
-    src/scoped_thread_locker.cpp
-    src/scoped_thread_locker.h
     src/tray_icon.cpp
     src/tray_icon.h
     src/tray_menu.cpp

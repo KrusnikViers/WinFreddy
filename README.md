@@ -1,4 +1,4 @@
-# WinFreddy v1.0
+# WinFreddy v1.1
 [![Build status](https://ci.appveyor.com/api/projects/status/rnio924m0n0ksike?svg=true)](https://ci.appveyor.com/project/KrusnikViers/winfreddy)
 
 **Portable windows application to prevent system from sleeping.**
