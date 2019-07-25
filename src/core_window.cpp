@@ -10,7 +10,7 @@ CoreWindow* g_instance = nullptr;
 
 // Just some number to identify WM_TIMER messages for awake timer.
 const UINT kSystemTimerId = 50u;
-const UINT kSystemTimerPeriodMs = 10'000;
+const UINT kSystemTimerPeriodMs = 30'000;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
   return g_instance ? g_instance->WindowProc(hwnd, msg, w_param, l_param)
@@ -71,8 +71,12 @@ CoreWindow::WindowProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
   } else if (msg == WM_TIMER) {
     // This should be checked, since ::KillTimer do not remove messages that
     // were already posted in the window queue.
-    if (awake_lock_enabled_)
-      ::SetThreadExecutionState(ES_DISPLAY_REQUIRED);
+    if (awake_lock_enabled_) {
+      CHECK(::SetThreadExecutionState(ES_CONTINUOUS |
+                                      ES_DISPLAY_REQUIRED |
+                                      ES_SYSTEM_REQUIRED |
+                                      ES_AWAYMODE_REQUIRED));
+    }
   } else if (msg == WM_COMMAND && !HIWORD(w_param) && !l_param) {
     switch ((MenuID)LOWORD(w_param)) {
       // Autolaunch line clicked in context menu.
@@ -108,6 +112,7 @@ void CoreWindow::SwitchState() {
   if (awake_lock_enabled_) {
     awake_lock_enabled_ = false;
     CHECK(::KillTimer(window_handle_, kSystemTimerId));
+    CHECK(::SetThreadExecutionState(ES_CONTINUOUS));
     RegistryRecord(kRegistryMainKey).SetValue(kRegistryDefaultState, false);
   } else {
     awake_lock_enabled_ = true;
